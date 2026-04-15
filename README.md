@@ -1,16 +1,60 @@
 # AI-Face-Attendance-System
 
-AI-Based Face Recognition Attendance System for Colleges
+AI-powered face recognition attendance platform for colleges with separate admin, teacher, and student dashboards.
 
-Production-ready full-stack attendance platform with:
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Frontend: React](https://img.shields.io/badge/Frontend-React-61dafb)](client/)
+[![Backend: Node.js](https://img.shields.io/badge/Backend-Node.js-339933)](server/)
+[![AI Service: FastAPI](https://img.shields.io/badge/AI-FastAPI-009688)](ai-service/)
+[![Database: MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248)](#local-setup)
 
-- React frontend with Admin, Teacher, and Student dashboards
-- Node.js + Express API with JWT auth, RBAC, audit logs, exports, and email alerts
-- MongoDB data layer with Mongoose models
-- FastAPI face-recognition microservice using DeepFace / FaceNet-style embeddings
-- Real-time attendance sessions, face training, manual overrides, and subject-wise analytics
+## Overview
 
-## Folder Structure
+This project combines a React frontend, Node.js/Express API, MongoDB database, and FastAPI-based face recognition service to automate classroom attendance.
+
+It supports:
+
+- role-based dashboards for admin, teacher, and student users
+- face-based attendance marking with manual override
+- attendance analytics, reports, and history tracking
+- low-attendance email alerts
+- seeded demo accounts for quick testing
+
+## Screenshots
+
+### Admin Dashboard
+
+![Admin Dashboard](docs/screenshots/admin-dashboard.png)
+
+### Teacher Dashboard
+
+![Teacher Dashboard](docs/screenshots/teacher-dashboard.png)
+
+### Student Dashboard
+
+![Student Dashboard](docs/screenshots/student-dashboard.png)
+
+## Features
+
+| Module | Highlights |
+|---|---|
+| Admin | Dashboard analytics, attendance records, student creation, face dataset training, export support |
+| Teacher | Subject-wise access, live attendance session, webcam/photo capture, manual override |
+| Student | Attendance percentage, subject breakdown, attendance log, prediction view |
+| AI Service | Face detection, embedding-based matching, liveness score, multi-face recognition |
+| Security | JWT auth, role-based access control, validation, audit-ready flow |
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React, Vite, Axios, Recharts |
+| Backend | Node.js, Express, Mongoose, JWT |
+| AI Service | FastAPI, Python |
+| Database | MongoDB |
+| Utilities | Nodemailer, PDF export, CSV export |
+
+## Project Structure
 
 ```text
 .
@@ -46,18 +90,19 @@ Production-ready full-stack attendance platform with:
 |   |   `-- validators/
 |   |-- Dockerfile
 |   `-- package.json
+|-- docs/
+|   `-- screenshots/
 |-- docker-compose.yml
-`-- docs/
+`-- README.md
 ```
 
-## Core Features
+## Demo Credentials
 
-- Admin: analytics dashboard, CRUD foundations, face training, attendance filters, CSV/PDF export
-- Teacher: assigned-subject access, live session start/stop, webcam scanning, manual override, restricted training
-- Student: attendance percentage, subject-wise logs, prediction/risk view
-- AI: face detection, embedding generation, multi-face matching, lightweight liveness heuristic
-- Security: JWT auth, role-based authorization, bcrypt hashing, validation, helmet, CORS, logging
-- Alerts: SMTP email integration for low-attendance notifications
+Run `npm run seed` inside `server`, then log in with:
+
+- Admin: `admin@college.edu` / `Admin@123`
+- Teacher: `teacher@college.edu` / `Teacher@123`
+- Student: `student@college.edu` / `Student@123`
 
 ## Local Setup
 
@@ -65,20 +110,26 @@ Production-ready full-stack attendance platform with:
 
 ```bash
 cd server
-# copy .env.example to .env
+cp .env.example .env
 npm install
 npm run seed
 npm run dev
 ```
 
-### 2. AI service
+On Windows PowerShell, copy env with:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+### 2. AI Service
 
 ```bash
 cd ai-service
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-# copy .env.example to .env
+copy .env.example .env
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -86,7 +137,7 @@ uvicorn app.main:app --reload --port 8000
 
 ```bash
 cd client
-# copy .env.example to .env
+copy .env.example .env
 npm install
 npm run dev
 ```
@@ -97,17 +148,7 @@ npm run dev
 docker compose up --build
 ```
 
-## Demo Credentials
-
-Use these seeded accounts after running `npm run seed` inside `server`:
-
-- Admin: `admin@college.edu` / `Admin@123`
-- Teacher: `teacher@college.edu` / `Teacher@123`
-- Student: `student@college.edu` / `Student@123`
-
-Run `npm run seed` inside `server` before first login.
-
-## Important API Areas
+## API Highlights
 
 - `POST /api/auth/login`
 - `GET /api/auth/me`
@@ -123,7 +164,7 @@ Run `npm run seed` inside `server` before first login.
 
 ## Email Configuration
 
-Set these in `server/.env`:
+Set these values in `server/.env`:
 
 - `SMTP_HOST`
 - `SMTP_PORT`
@@ -131,36 +172,34 @@ Set these in `server/.env`:
 - `SMTP_PASS`
 - `SMTP_FROM`
 
-Gmail users typically need an app password instead of their main account password.
+Gmail usually requires an app password instead of the main account password.
 
 ## Face Recognition Notes
 
-- The AI service stores embeddings in MongoDB through the server, not raw images.
-- Training expects multiple base64 images uploaded from the admin or teacher panels.
-- Recognition accepts a live webcam frame and compares it against stored embeddings for the active class roster.
-- Basic anti-spoofing uses image sharpness as a lightweight liveness gate. For high-security deployments, replace it with a stronger challenge-response or blink model.
+- Embeddings are stored through the server, not raw image archives.
+- Teachers can mark attendance using webcam capture or uploaded images.
+- Multiple face images can be used to build the seeded student profile.
+- The current liveness check is lightweight and can be replaced for higher-security deployments.
 
 ## Deployment Notes
 
 - Frontend: Vercel or Netlify
-- Server: Render, Railway, AWS Elastic Beanstalk, or ECS
-- AI service: Render background service, EC2, or ECS with CPU/GPU sizing based on throughput
+- Backend: Render, Railway, AWS Elastic Beanstalk, or ECS
+- AI Service: Render, EC2, or ECS
 - Database: MongoDB Atlas
-- Storage: Extend face-image uploads to S3 if you want archival copies before embedding
+
+## Testing Flow
+
+1. Seed the database.
+2. Log in as admin and review the analytics dashboard.
+3. Log in as teacher and start an attendance session.
+4. Capture attendance by webcam or photo.
+5. Stop the session and verify the records.
+6. Log in as student and review updated attendance logs.
+7. Export reports as CSV or PDF.
+
+Additional sample guidance is in [docs/sample-dataset.md](docs/sample-dataset.md).
 
 ## License
 
-This repository, `AI-Face-Attendance-System`, is licensed under the MIT License. See the [LICENSE] file for details.
-
-## Testing Instructions
-
-1. Seed the database.
-2. Log in as admin and create branches, teachers, students, and subjects if needed.
-3. Upload 8-15 student face images from the admin dashboard.
-4. Log in as teacher and start a session for the mapped subject.
-5. Scan live webcam frames.
-6. Stop the session and verify present/absent records.
-7. Log in as student and confirm the updated percentage and logs.
-8. Export attendance reports as CSV/PDF.
-
-Additional dataset tips are in [docs/sample-dataset.md](/d:/itr/New%20folder/ai-attendance-system/docs/sample-dataset.md).
+This repository, `AI-Face-Attendance-System`, is licensed under the MIT License. See [LICENSE](LICENSE).
