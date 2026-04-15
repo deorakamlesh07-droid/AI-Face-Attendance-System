@@ -1,0 +1,48 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: face-attendance-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  server:
+    build: ./server
+    container_name: face-attendance-server
+    env_file:
+      - ./server/.env.example
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+  client:
+    build: ./client
+    container_name: face-attendance-client
+    env_file:
+      - ./client/.env.example
+    depends_on:
+      - server
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+  ai-service:
+    build: ./ai-service
+    container_name: face-attendance-ai
+    env_file:
+      - ./ai-service/.env.example
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ai-service:/app
+
+volumes:
+  mongo_data:

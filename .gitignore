@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+.env
+.venv/
+__pycache__/
+*.pyc
+*.log
+
+logs/
+uploads/
+.tmp/
+.run-logs/
+ai-service/storage/*
+!ai-service/storage/.gitkeep
